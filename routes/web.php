@@ -11,6 +11,7 @@ use App\Http\Controllers\GroupDocumentController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\ApplyController;
 use App\Http\Controllers\InternshipController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Foundation\Application;
@@ -81,6 +82,8 @@ Route::middleware(['auth', 'employer'])->group(function () {
     Route::post('/employer/requirement/{id}/approve', [EmployerController::class, 'approveRequirement']);
     Route::post('/employer/requirement/{id}/reject', [EmployerController::class, 'rejectRequirement']);
     Route::get('/interns', [EmployerController::class, 'getInterns'])->name('interns');
+    Route::get('/verify', [ApplyController::class, 'create'])->name('company.verify');
+    Route::post('/apply', [ApplyController::class, 'store'])->name('company-application.store');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
