@@ -57,6 +57,18 @@ export default function Coordinator({ header, children }) {
                     >
                         <h1 className="text-lg font-medium">Groups</h1>
                     </NavLink>
+                    <NavLink
+                        href={route("coordinator.verifications")}
+                        active={route().current("coordinator.verifications")}
+                    >
+                        <h1 className="text-lg font-medium">Verifications</h1>
+                    </NavLink>
+                    <NavLink
+                        href={route("coordinator.companies")}
+                        active={route().current("coordinator.companies")}
+                    >
+                        <h1 className="text-lg font-medium">Companies</h1>
+                    </NavLink>
                 </nav>
 
                 <div className="p-4 border-t bg-white sticky bottom-0 z-10">

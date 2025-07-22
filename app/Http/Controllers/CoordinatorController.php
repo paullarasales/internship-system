@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\StudentProfile;
 use App\Models\Application;
+use App\Models\CompanyApplication;
 use App\Models\Group;
 use Inertia\Inertia;
 
@@ -410,9 +411,6 @@ public function assignStudentToInternship(Request $request)
         ]);
     }
 
-    /**
-     * Show all groups with their students for the coordinator
-     */
     public function groupsWithStudents()
     {
         // Get all groups, their instructor, and students with studentProfile
@@ -420,5 +418,61 @@ public function assignStudentToInternship(Request $request)
         return Inertia::render('Coordinator/Groups', [
             'groups' => $groups,
         ]);
+    }
+
+    public function verifications()
+    {
+        return Inertia::render('Coordinator/Verification');
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected'
+        ]);
+
+        $application = CompanyApplication::findOrFail($id);
+        $application->status = $request->status;
+        $application->save();
+
+        return response()->json(['messasge' => 'Status updated successfully.']);
+    }
+
+    public function getPartners()
+    {
+        $partners = CompanyApplication::where('status', 'approved')
+            ->with('user.employerProfile')
+            ->latest()
+            ->get()
+            ->map(function ($application) {
+                return [
+                    'id' => $application->id,
+                    'status' => $application->status,
+                    'user' => [
+                        'id' => $application->user->id,
+                        'name' => $application->user->name,
+                        'email' => $application->user->email,
+                        'employerProfile' => $application->user->employerProfile ? [
+                            'company_name'     => $application->user->employerProfile->company_name,
+                            'contact_name'     => $application->user->employerProfile->contact_name,
+                            'contact_number'   => $application->user->employerProfile->contact_number,
+                            'profile_picture'  => $application->user->employerProfile->profile_picture,
+                            'company_address'  => $application->user->employerProfile->company_address,
+                            'company_email'    => $application->user->employerProfile->company_email,
+                            'description'      => $application->user->employerProfile->description,
+                            'website'          => $application->user->employerProfile->website,
+                        ] : null,
+                    ],
+                ];
+            });
+
+        return response()->json([
+            'partners' => $partners,
+        ]);
+    }
+
+    public function companies()
+    {
+        return Inertia::render('Coordinator/Company');
     }
 }

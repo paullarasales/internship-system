@@ -26,14 +26,15 @@ class ApplyController extends Controller
 
         $user = Auth::user();
 
-        if ($user->companyApplication && $user->companyApplication === 'pending') {
+        // Check if there's an existing pending submission
+        if ($user->companyApplication && $user->companyApplication->status === 'pending') {
             return back()->withErrors(['business_permit_path' => 'Verification already submitted.']);
         }
 
         if ($request->hasFile('business_permit_path')) {
             $file = $request->file('business_permit_path');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $destination = public_path('uploads/business_permits');
+            $destination = public_path('business_permits');
 
             if (!file_exists($destination)) {
                 mkdir($destination, 0775, true);
@@ -43,7 +44,7 @@ class ApplyController extends Controller
 
             $companyApp = new CompanyApplication();
             $companyApp->user_id = $user->id;
-            $companyApp->business_permit_path = 'uploads/business_permits' . $filename;
+            $companyApp->business_permit_path = 'business_permits/' . $filename;
             $companyApp->status = 'pending';
             $companyApp->save();
 
@@ -53,8 +54,55 @@ class ApplyController extends Controller
         return back()->withErrors(['business_permit_path' => 'File upload failed']);
     }
 
-    public function getApplications()
+
+    public function getPendingStats()
     {
-        $applications = CompanyApplication::all();
+        $applicants = CompanyApplication::where('status', 'pending')
+            ->with('user.employerProfile')->latest()->get()
+            ->map(function ($application) {
+                return [
+                    'id' => $application->id,
+                    'status' => $application->status,
+                    'business_permit_path' => $application->business_permit_path,
+                    'user' => [
+                        'id' => $application->user->id,
+                        'name' => $application->user->name,
+                        'employerProfile' => $application->user->employerProfile,
+                    ],
+                ];
+            });
+
+        return response()->json([
+            'applicants' => $applicants,
+        ]);
+    }
+
+    public function getApplications(Reqeuest $request)
+    {
+        $status = $request->query('status');
+
+        $applications = CompanyApplication::when($status, function ($query, $status) {
+            return $query->where('status', $status);
+        })->with('user')->latest()->get();
+
+        return json()->response([
+            'status' => $status,
+            'applications' => $applications
+        ]);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected'
+        ]);
+
+        $application = CompanyApplication::findOrFail($id);
+        $application->status = $request->status;
+        $application->save();
+
+        return response()->json([
+            'message' => 'Status updated successfully'
+        ]);
     }
 }

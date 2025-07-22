@@ -133,8 +133,11 @@ Route::get('/coordinator/internships', [CoordinatorController::class, 'internshi
 Route::get('/coordinator/internships/{id}', [CoordinatorController::class, 'showInternship'])->name('coordinator.internships.show');
 Route::get('/coordinator/{id}/assign', [CoordinatorController::class, 'assignStudent'])->name('coordinator.internships.assign');
 Route::post('/coordinator/internships/assign-student', [CoordinatorController::class, 'assignStudentToInternship'])->name('coordinator.internships.assign-student');
-
-
+Route::get('/coordinator/verifications', [CoordinatorController::class, 'verifications'])->name('coordinator.verifications');
+Route::get('/pending/status', [ApplyController::class, 'getPendingStats']);
+Route::post('/company-applications/{id}/status', [ApplyController::class, 'updateStatus']);
+Route::get('/company', [CoordinatorController::class, 'getPartners']);
+Route::get('/company/all', [CoordinatorController::class, 'companies'])->name('coordinator.companies');
 // Coordinator: Groups with students
 Route::get('/coordinator/groups', [CoordinatorController::class, 'groupsWithStudents'])->name('coordinator.groups');
 Route::get('/coordinator/groups/create', [GroupController::class, 'create'])->name('coordinator.groups.create');
