@@ -105,4 +105,5 @@ class ApplyController extends Controller
             'message' => 'Status updated successfully'
         ]);
     }
+
 }

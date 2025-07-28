@@ -84,6 +84,7 @@ Route::middleware(['auth', 'employer'])->group(function () {
     Route::get('/interns', [EmployerController::class, 'getInterns'])->name('interns');
     Route::get('/verify', [ApplyController::class, 'create'])->name('company.verify');
     Route::post('/apply', [ApplyController::class, 'store'])->name('company-application.store');
+    Route::get('/employer/application-status', [EmployerController::class, 'checkStatus']);
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -140,7 +141,7 @@ Route::get('/company', [CoordinatorController::class, 'getPartners']);
 Route::get('/company/all', [CoordinatorController::class, 'companies'])->name('coordinator.companies');
 // Coordinator: Groups with students
 Route::get('/coordinator/groups', [CoordinatorController::class, 'groupsWithStudents'])->name('coordinator.groups');
-Route::get('/coordinator/groups/create', [GroupController::class, 'create'])->name('coordinator.groups.create');
+Route::get('/coordinator/groups/create', [GroupController::class, 'create'])->name('instructor.groups.create');
 Route::get('instructor/dashboard', [InstructorController::class, 'dashboard'])->name('instructor.dashboard');
 Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
 Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');

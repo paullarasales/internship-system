@@ -39,12 +39,12 @@ export default function Coordinator({ header, children }) {
                     >
                         <h1 className="text-lg font-medium">Instructor</h1>
                     </NavLink>
-                    <NavLink
+                    {/* <NavLink
                         href={route("coordinator.groups.create")}
                         active={route().current("coordinator.groups.create")}
                     >
                         <h1 className="text-lg font-medium">Manage Groups</h1>
-                    </NavLink>
+                    </NavLink> */}
                     <NavLink
                         href={route("coordinator.internships")}
                         active={route().current("coordinator.internships")}

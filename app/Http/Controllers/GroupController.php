@@ -11,24 +11,24 @@ class GroupController extends Controller
 {
     public function create()
     {
-        // Only coordinators should access this, add middleware as needed
-        $instructors = User::where('role', 'instructor')->get(['id', 'name']);
-        return Inertia::render('Coordinator/GroupCreate', [
-            'instructors' => $instructors,
-        ]);
+        return Inertia::render('Instructor/CreateGroup');
     }
 
     public function store(Request $request)
     {
+        // dd($request->all());
         $request->validate([
             'name' => 'required|string|max:255',
             'section' => 'required|string|max:255',
-            'instructor_id' => 'required|exists:users,id',
         ]);
 
-        $group = Group::create($request->only(['name', 'section', 'instructor_id']));
+        $group = Group::create([
+            'name' => $request->name,
+            'section' => $request->section,
+            'instructor_id' => auth()->id(),
+        ]);
 
-        return redirect()->route('coordinator.groups')->with('success', 'Group created successfully.');
+        return redirect()->route('groups.index')->with('success', 'Group created successfully.');
     }
 
     public function assignStudents(Request $request, Group $group)

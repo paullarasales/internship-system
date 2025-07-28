@@ -1,5 +1,7 @@
 import { useForm } from "@inertiajs/react";
 import EmployerLayout from "@/Layouts/EmployerLayout";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function JobPosting() {
     const { data, setData, post, processing, errors } = useForm({
@@ -9,11 +11,29 @@ export default function JobPosting() {
         start_date: "",
         end_date: "",
     });
+    const [status, setStatus] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route("internships.store"));
     };
+
+    useEffect(() => {
+        const fetchStatus = async () => {
+            try {
+                const res = await axios.get("/employer/application-status");
+                setStatus(res.data.status);
+            } catch (error) {
+                console.error("Error fetching the status.", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStatus();
+        const interval = setInterval(fetchStatus, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <EmployerLayout>
@@ -21,6 +41,12 @@ export default function JobPosting() {
                 <h1 className="text-2xl font-bold mb-6 text-gray-800">
                     Create New Internship
                 </h1>
+                {!loading && status !== "approved" && (
+                    <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4 text-sm">
+                        You cannot post an internship until your company is
+                        approved.
+                    </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="flex flex-col">
                         <label className="text-sm font-semibold mb-1 text-gray-700">
@@ -123,7 +149,7 @@ export default function JobPosting() {
                     <div className="flex justify-end">
                         <button
                             type="submit"
-                            disabled={processing}
+                            disabled={processing || status !== "approved"}
                             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                         >
                             {processing ? "Saving..." : "Post Internship"}

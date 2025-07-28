@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Instructor from "@/Layouts/Instructor";
 import { Inertia } from "@inertiajs/inertia";
+import { Link } from "@inertiajs/react";
 
 export default function Groups({
     groups: initialGroups = [],
@@ -95,7 +96,9 @@ export default function Groups({
         <Instructor title="Groups">
             <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
                 <h1 className="text-2xl font-bold mb-4">Groups Management</h1>
-
+                <Link href={route("instructor.groups.create")}>
+                    Create new Group
+                </Link>
                 {/* Groups List */}
                 <h2 className="text-xl font-semibold mb-2">Groups List</h2>
                 <div>

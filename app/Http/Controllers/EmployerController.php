@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Notifications\ApplicationStatusNotification;
 use App\Models\InternshipRequirement;
+use App\Models\CompanyApplication;
 use App\Models\Internship;
 use App\Models\User;
 use App\Models\EmployerProfile;
@@ -229,18 +230,30 @@ class EmployerController extends Controller
     }
 
     public function getInterns()
-{
-    $internships = Internship::with([
-        'students.studentProfile',
-        'applications' => function ($query) {
-            $query->where('status', 'accepted')->with('studentProfile');
+    {
+        $internships = Internship::with([
+            'students.studentProfile',
+            'applications' => function ($query) {
+                $query->where('status', 'accepted')->with('studentProfile');
+            }
+        ])->get();
+
+        return Inertia::render('Employer/Interns', [
+            'internships' => $internships,
+        ]);
+    }
+
+    public function checkStatus()
+    {
+        // getting the current user
+        $user = auth()->user();
+
+        $application = CompanyApplication::where('user_id', $user->id)->first();
+
+        if (!$application) {
+            return response()->json(['status' => 'not_found']);
         }
-    ])->get();
 
-    return Inertia::render('Employer/Interns', [
-        'internships' => $internships,
-    ]);
-}
-
-
+        return response()->json(['status' => $application->status]);
+    }
 }
